@@ -1,0 +1,176 @@
+---
+title: "p8105_hw3_wm2473"
+output: "github_document"
+date: "2022-10-11"
+---
+
+# Problem 1
+```{r}
+library(p8105.datasets)
+data("instacart")
+```
+
+# Sum of aisles
+```{r}
+instacart %>% 
+  count(aisle) %>%  
+  arrange(desc(n))
+# Answer: In total, there are 134 aisle. And fresh vegetables and fresh fruits holding the most items ordered by far.
+```
+
+#Make a plot shows the number of items ordered
+```{r}
+instacart %>% 
+  count(aisle) %>% 
+  filter(n > 10000) %>% 
+  mutate(aisle = fct_reorder(aisle, n)) %>% 
+  ggplot(aes(x = aisle, y = n)) + 
+  geom_point() + 
+  labs(title = "Number of items ordered in each aisle") +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1))
+```
+
+# Make a table showing three most popular items in aisles
+```{r}
+instacart %>% 
+  filter(aisle %in% c("baking ingredients", "dog food care", "packaged vegetables fruits")) %>% 
+  group_by(aisle) %>% 
+  count(product_name) %>% 
+  mutate(rank = min_rank(desc(n))) %>% 
+  filter(rank < 4) %>% 
+  arrange(desc(n)) %>%
+  knitr::kable()
+```
+
+# Make a table: show mean hour of day "Pink Lady Apples & Coffee Ice Cream"
+```{r}
+instacart %>% 
+  filter(product_name %in% c("Pink Lady Apples", "Coffee Ice Crean")) %>% 
+  group_by(product_name, order_dow) %>% 
+  summarise(mean_hour = mean(order_hour_of_day)) %>% 
+  pivot_wider(names_from = "product_name",
+              values_from = "mean_hour") %>% 
+  knitr::kable(digits = 2)
+# Pink Lady Apples are generally purchased slightly earlier in the day than Coffee Ice Cream, with the exception of day 5.
+```
+
+# Problem 2
+# loading the library
+```{r}
+library(tidyverse)
+library(readxl)
+```
+
+# Cleaning data
+```{r}
+accelerometer = 
+  read_csv(
+    "accel_data.csv" )%>%
+  janitor::clean_names() %>%
+  pivot_longer(activity_1:activity_1440,
+               names_prefix = "activity_",
+               names_to = "activity",
+               values_to = "counts") %>% 
+  mutate(day_1= if_else(day=="Sunday" | day == "Saturday",
+                        "weekend","weekday")) 
+```
+
+```{r}
+colnames(accelerometer)
+nrow(accelerometer)
+ncol(accelerometer)
+#Describe: This dataset have six variables. I create a day_1 column represent the day is weekday or weekend. I clean the data using pivot longer function make them values_to the counts variable which represent the activity count in each day. There is 50400 observations and 6 columns of the data.
+```
+
+
+# Create table
+```{r}
+activitysum = 
+  accelerometer %>% 
+  group_by(week, day) %>% 
+  summarise(activitysum = sum(counts)) %>% 
+  pivot_wider(
+    names_from = "day", 
+    values_from = "activitysum"
+  )
+knitr::kable(activitysum)
+# No obvious trend can be showed in the table. But Saturday will be the day that less activity counts than the others.
+```
+
+
+```{r}
+accelerometer %>% 
+  mutate(activity = as.numeric(activity)) %>% 
+  group_by(day, activity) %>% 
+  summarise(avg_counts=mean(counts)) %>% 
+  ggplot(aes(x= activity, y = avg_counts,color=day))+ geom_line(alpha=.5)+ scale_x_continuous(breaks = c(0,360, 720, 1080, 1440), labels = c("0:00","6:00", "12:00","18:00","24:00"), limits = c(0,1440)) + labs(title = "patient activity counts", x = "activity", y = "counts") 
+
+# Describe: There are two high activities appear, one is in the range 12pm to 3pm. The other one is from 8pm to 10pm. From the graph, we can see that the highest activity counts appear from 12pm to 3pm. This patient has a high activity counts after lunch and before sleep.   
+```
+
+
+
+# Problem 3
+```{r}
+library(p8105.datasets)
+library(grid)
+library(patchwork)
+library(ggplot2)
+data("ny_noaa")
+```
+
+
+# Clean the data
+```{r}
+ny_noaa %>%  
+  janitor::clean_names() %>%
+  na.omit() %>% 
+  separate(date, into = c("year", "month", "day")) %>% 
+  mutate(month =  month.abb [as.numeric(month)], prcp = prcp/10, tmax = as.integer(tmax)/10, tmin = as.numeric(tmin)/10) 
+# 
+```
+
+# two-panel plot
+```{r}
+ny_noaa %>% 
+  janitor::clean_names() %>%
+  separate(date, into = c("year", "month", "day")) %>% 
+  mutate(month =  month.abb [as.numeric(month)], tmax = as.integer(tmax)) %>% 
+  filter(month%in% c("Jan","Jul")) %>% 
+  group_by(month, year, id) %>% 
+  drop_na(tmax) %>% 
+  summarise(tmax_mean = mean(tmax)) %>% 
+ggplot(aes(x= year, y = tmax_mean, color = "id"))+ geom_point(alpha = .5)+facet_grid(.~month)
+
+# ? graph weird. Observable/ Interpretable:  The maximum temperatuare of July is higher than January and it's around 30. The maximum temperature of Jan is about a range from 10 to -10. 
+```
+
+# Two-panel plot showing tmax vs. tmin
+```{r}
+tmax_tmin = 
+ny_noaa %>% 
+  janitor::clean_names() %>%
+  separate(date, into = c("year", "month", "day")) %>% 
+  mutate(month =  month.abb [as.numeric(month)], tmax = as.integer(tmax)/10, tmin = as.integer(tmin)/10) %>%
+  drop_na(tmax, tmin) %>% 
+  select(year, tmax, tmin, id) %>% 
+ggplot(aes(x= tmax, y = tmin, color = "id"))+ geom_point(alpha = .5) 
+
+tmax_tmin
+
+
+```
+
+
+```{r}
+snowfall = 
+  ny_noaa %>% 
+  janitor::clean_names() %>%
+  separate(date, into = c("year", "month", "day")) %>% 
+  mutate(month =  month.abb [as.numeric(month)], tmax = as.integer(tmax)/10, tmin = as.integer(tmin)/10) %>% 
+  select(snow, year) %>% 
+  drop_na(snow) %>% 
+  filter(snow>0&snow<1000) %>% 
+  ggplot(aes(x = year, y = snow)) + 
+  geom_boxplot() 
+snowfall
