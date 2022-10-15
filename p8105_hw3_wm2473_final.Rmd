@@ -94,7 +94,7 @@ activitysum =
     values_from = "activitysum"
   )
 knitr::kable(activitysum)
-# No obvious trend can be showed in the table. But Saturday will be the day that less activity counts than the others.
+# No obvious trend can be showed in the table. But the activity of Saturday will be the day that less activity counts than the others.
 ```
 
 
@@ -105,7 +105,7 @@ accelerometer %>%
   summarise(avg_counts=mean(counts)) %>% 
   ggplot(aes(x= activity, y = avg_counts,color=day))+ geom_line(alpha=.5)+ scale_x_continuous(breaks = c(0,360, 720, 1080, 1440), labels = c("0:00","6:00", "12:00","18:00","24:00"), limits = c(0,1440)) + labs(title = "patient activity counts", x = "activity", y = "counts") 
 
-# Describe: There are two high activities appear, one is in the range 12pm to 3pm. The other one is from 8pm to 10pm. From the graph, we can see that the highest activity counts appear from 12pm to 3pm. This patient has a high activity counts after lunch and before sleep.   
+# Describe: There are two high activities appear during the patient hour/day, one is in the range 12pm to 3pm. The other one is from 8pm to 10pm. From the graph, we can see that the highest activity counts appear from 12pm to 3pm. And can conclude, this patient has a high activity counts after lunch and before sleep. The activity counts is low between 12am to 6am which is the sleeping time. 
 ```
 
 
@@ -143,9 +143,9 @@ noaa_clean %>%
   drop_na(tmax) %>%
   group_by(year, month, id) %>% 
   summarise(tmax_mean = mean(tmax)) %>% 
-ggplot(aes(x= year, y = tmax_mean, color = month))+theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 0))+ geom_point(alpha = .5)+facet_grid(.~month)
+ggplot(aes(x= year, y = tmax_mean, color = month))+theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 0))+ geom_point(alpha = .5,scale =3)+facet_grid(.~month) + labs(title= "Mean tmax Jan vs. Jul", x = "Year", y = "Mean of tmax(C)") 
 
-#Observable/ Interpretabe:  The maximum temperature of July is higher than January and it's around 30. The maximum temperature of Jan is about a range from 10 to -10. In January, there are two outliers. One appear around 1982 another one appear 2004. In July,there is one outlier appear around 1988. The data in January is more fluctuated than the data in July.  
+#Observable/ Interpretabe:  The maximum temperature of July is higher than January and the tmax around 30 celsius. The maximum temperature of Jan is about a range from 10 celsius to -10 celsius. In January, there are two outliers. One appear around 1982 another one appear 2004. In July,there is one outlier appear around 1988. The data in January is more fluctuated than the data in July.  
 ```
 
 # Two-panel plot showing tmax vs. tmin
@@ -165,5 +165,7 @@ snowfall =
 
 
 tmax_tmin+snowfall
+
+#The two-panel plot is combined by a hex plot and a boxplot. I using a hex plot showing the relationship between tmax and tmin and a boxplot showing the different year distribution of snowfall values greater than 0 and less than 100. From hex plot, we can most of the temperature is from 0 to 25 which located in the center of the graph. For the boxplot, we can see that the snowfall distribution is right skewed and most of them from 10mm to 30mm. 
 ```
 
