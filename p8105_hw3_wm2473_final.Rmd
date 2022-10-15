@@ -7,6 +7,9 @@ date: "2022-10-11"
 # Problem 1
 ```{r}
 library(p8105.datasets)
+library(tidyverse)
+library(readxl)
+
 data("instacart")
 ```
 
