@@ -79,7 +79,7 @@ accelerometer =
 colnames(accelerometer)
 nrow(accelerometer)
 ncol(accelerometer)
-#Describe: This dataset have six variables. I create a day_1 column represent the day is weekday or weekend. I clean the data using pivot longer function make them values_to the counts variable which represent the activity count in each day. There is 50400 observations and 6 columns of the data.
+#Describe: This dataset have six variables. I create a day_1 column represent the day is weekday or weekend. I cleaned the data using pivot longer function make them values_to the counts variable which represent the activity count in each day. There is 50400 observations and 6 columns of the data.
 ```
 
 
@@ -119,7 +119,6 @@ library(ggplot2)
 data("ny_noaa")
 ```
 
-
 # Clean the data
 ```{r}
 noaa_clean = ny_noaa %>%  
@@ -127,25 +126,26 @@ noaa_clean = ny_noaa %>%
   separate(date, into = c("year", "month", "day")) %>% 
   mutate(month =  month.abb [as.numeric(month)], prcp = prcp/10, tmax = as.integer(tmax)/10, tmin = as.numeric(tmin)/10) 
 ```
+
 # Most commonly observed data
 ```{r}
 noaa_clean %>%
   count(snow, name = "count") %>%
   top_n(1, count) %>%
   knitr::kable(digits = 1)
-#The most commonly observed value is 0. Because there are lots of "NA" and 0 in the "snow" column indicated lots of places don't have snow. 
+#The data is collecting the weather data from New York weather stations between 1981 to 2010. There are 2595176 observations and 9 variables. For cleaning data, I give them the proporate units of prcp, tmax and tmin. I also change and separate the "date" variable to "year", "month" and "day".  The key variables  are year, month, day, prcp, snow, snwd, tmax, tmin. And The most commonly observed value is 0. Because there are lots of "NA" and 0 in the "snow" column indicated lots of places don't have snow. 
 ```
 
-# two-panel plot
+# Two-panel plot
 ```{r}
 noaa_clean %>% 
   filter(month%in% c("Jan","Jul")) %>% 
-  group_by(year, month, id) %>% 
   drop_na(tmax) %>%
+  group_by(year, month, id) %>% 
   summarise(tmax_mean = mean(tmax)) %>% 
-ggplot(aes(x= year, y = tmax_mean, color = month))+ scale_x_discrete(breaks = c(1980,1990,2000,2010))+ geom_point(alpha = .5)+facet_grid(.~month)
+ggplot(aes(x= year, y = tmax_mean, color = month))+theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 0))+ geom_point(alpha = .5)+facet_grid(.~month)
 
-#Observable/ Interpretable:  The maximum temperature of July is higher than January and it's around 30. The maximum temperature of Jan is about a range from 10 to -10. 
+#Observable/ Interpretabe:  The maximum temperature of July is higher than January and it's around 30. The maximum temperature of Jan is about a range from 10 to -10. In January, there are two outliers. One appear around 1982 another one appear 2004. In July,there is one outlier appear around 1988. The data in January is more fluctuated than the data in July.  
 ```
 
 # Two-panel plot showing tmax vs. tmin
