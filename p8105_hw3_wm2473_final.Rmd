@@ -122,12 +122,19 @@ data("ny_noaa")
 
 # Clean the data
 ```{r}
-ny_noaa %>%  
+noaa_clean = ny_noaa %>%  
   janitor::clean_names() %>%
   na.omit() %>% 
   separate(date, into = c("year", "month", "day")) %>% 
   mutate(month =  month.abb [as.numeric(month)], prcp = prcp/10, tmax = as.integer(tmax)/10, tmin = as.numeric(tmin)/10) 
-# 
+```
+# Most commonly observed data
+```{r}
+noaa_clean %>%
+  count(snow, name = "count") %>%
+  top_n(1, count) %>%
+  knitr::kable(digits = 1)
+#The most commonly observed value is 0. Because there are lots of "NA" and 0 in the "snow" column indicated lots of places don't have snow. 
 ```
 
 # two-panel plot
@@ -140,9 +147,9 @@ ny_noaa %>%
   group_by(month, year, id) %>% 
   drop_na(tmax) %>% 
   summarise(tmax_mean = mean(tmax)) %>% 
-ggplot(aes(x= year, y = tmax_mean, color = "id"))+ geom_point(alpha = .5)+facet_grid(.~month)
+ggplot(aes(x= year, y = tmax_mean, color = month))+ geom_point(alpha = .5)+facet_grid(.~month)
 
-# ? graph weird. Observable/ Interpretable:  The maximum temperatuare of July is higher than January and it's around 30. The maximum temperature of Jan is about a range from 10 to -10. 
+#Observable/ Interpretable:  The maximum temperatuare of July is higher than January and it's around 30. The maximum temperature of Jan is about a range from 10 to -10. 
 ```
 
 # Two-panel plot showing tmax vs. tmin
@@ -154,9 +161,7 @@ ny_noaa %>%
   mutate(month =  month.abb [as.numeric(month)], tmax = as.integer(tmax)/10, tmin = as.integer(tmin)/10) %>%
   drop_na(tmax, tmin) %>% 
   select(year, tmax, tmin, id) %>% 
-ggplot(aes(x= tmax, y = tmin, color = "id"))+ geom_point(alpha = .5) 
-
-tmax_tmin
+ggplot(aes(x= tmax, y = tmin, color = "id"))+ geom_point(alpha = .5)+ geom_hex()
 
 
 ```
