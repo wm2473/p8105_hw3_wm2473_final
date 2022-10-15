@@ -141,11 +141,11 @@ noaa_clean %>%
 noaa_clean %>% 
   filter(month%in% c("Jan","Jul")) %>% 
   group_by(year, month, id) %>% 
-  drop_na(tmax) %>% 
+  drop_na(tmax) %>%
   summarise(tmax_mean = mean(tmax)) %>% 
 ggplot(aes(x= year, y = tmax_mean, color = month))+ scale_x_discrete(breaks = c(1980,1990,2000,2010))+ geom_point(alpha = .5)+facet_grid(.~month)
 
-#Observable/ Interpretable:  The maximum temperatuare of July is higher than January and it's around 30. The maximum temperature of Jan is about a range from 10 to -10. 
+#Observable/ Interpretable:  The maximum temperature of July is higher than January and it's around 30. The maximum temperature of Jan is about a range from 10 to -10. 
 ```
 
 # Two-panel plot showing tmax vs. tmin
@@ -154,20 +154,16 @@ tmax_tmin =
 noaa_clean %>% 
   drop_na(tmax, tmin) %>% 
   select(year, tmax, tmin, id) %>% 
-ggplot(aes(x= tmax, y = tmin, color = "id"))+ geom_point(alpha = .5)+ geom_hex()
-tmax_tmin
-```
+ggplot(aes(x= tmax, y = tmin))+ geom_point(alpha = .5)+ geom_hex()+ labs(title = "Max VS Min temperature", x = "Max temperature (C)", y = "Min temperature (C)")
 
-
-```{r}
 snowfall = 
-  ny_noaa %>% 
-  janitor::clean_names() %>%
-  separate(date, into = c("year", "month", "day")) %>% 
-  mutate(month =  month.abb [as.numeric(month)], tmax = as.integer(tmax)/10, tmin = as.integer(tmin)/10) %>% 
+  noaa_clean %>% 
   select(snow, year) %>% 
   drop_na(snow) %>% 
-  filter(snow>0&snow<1000) %>% 
-  ggplot(aes(x = year, y = snow)) + 
-  geom_boxplot() 
-snowfall
+  filter(snow>0&snow<100) %>% 
+  ggplot(aes(x = snow, y = year)) +  theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 0))+ geom_boxplot(scale = 1) + labs(title = "Snowfall Distribution", x = "Snowfall(mm)", y = "Year")
+
+
+tmax_tmin+snowfall
+```
+
